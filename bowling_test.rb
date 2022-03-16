@@ -7,7 +7,7 @@ class BowlingTest < Minitest::Test
     21.times{newgame.throw 2}
     assert_equal 40, newgame.score
   end
-  
+
   def test_game_with_all_strikes
     newgame = Bowling.new
     12.times{newgame.throw 10}

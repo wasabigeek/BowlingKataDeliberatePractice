@@ -1,5 +1,4 @@
 class Bowling
-
   def initialize
     @throws = []
     # 1, 9, 4
@@ -19,16 +18,14 @@ class Bowling
         frame_score = throws[currentthrow]
         frame_bonus_score = throws[currentthrow+1] + throws[currentthrow+2]
         currentthrow += 1 # advance to next frame
-      elsif spare?(currentthrow, currentthrow + 1)
-        frame_score = throws[currentthrow] + throws[currentthrow+1]
-        frame_bonus_score = throws[currentthrow+2]
-        currentthrow += 2 # advance to next frame
-      elsif normal_frame?(currentthrow, currentthrow + 1)
-        frame_score = throws[currentthrow] + throws[currentthrow+1]
-        frame_bonus_score = 0
-        currentthrow += 2 # advance to next frame
       else
-        raise
+        frame_score = throws[currentthrow] + throws[currentthrow+1]
+        if spare?(currentthrow, currentthrow + 1)
+          frame_bonus_score = throws[currentthrow+2]
+        else
+          frame_bonus_score = 0
+        end
+        currentthrow += 2 # advance to next frame
       end
       totalscore += frame_score + frame_bonus_score
       frame += 1
@@ -42,9 +39,5 @@ class Bowling
 
   def spare?(throw_index, throw2_index)
     throws[throw_index] + throws[throw2_index] == 10
-  end
-
-  def normal_frame?(throw_index, throw2_index)
-    throws[throw_index] + throws[throw2_index] < 10
   end
 end
