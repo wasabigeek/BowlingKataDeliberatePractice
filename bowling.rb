@@ -1,19 +1,60 @@
 class Bowling
-  class Strike
-    def self.match?(score)
-      score == 10
+  class DefaultThrow
+    def initialize(throws:, frame_start_index:)
+      @throws = throws
+      @frame_start_index = frame_start_index
     end
 
-    def self.base_score
+    def self.match?(throws, current_index)
+      throws[current_index] + throws[current_index + 1] < 10
+    end
+
+    def base_score
+      @throws[@frame_start_index] + @throws[@frame_start_index + 1]
+    end
+
+    def get_bonus_score
+      0
+    end
+
+    def throws
+      2
+    end
+  end
+
+  class Strike < DefaultThrow
+    def self.match?(throws, current_index)
+      throws[current_index] == 10
+    end
+
+    def base_score
       10
     end
 
-    def self.get_bonus_score(throws, current_index)
-      throws[current_index + 1] + throws[current_index + 2]
+    def get_bonus_score
+      @throws[@frame_start_index + 1] + @throws[@frame_start_index + 2]
     end
 
-    def self.throws
+    def throws
       1
+    end
+  end
+
+  class Spare < DefaultThrow
+    def self.match?(throws, current_index)
+      throws[current_index] + throws[current_index + 1] == 10
+    end
+
+    def base_score
+      10
+    end
+
+    def get_bonus_score
+      @throws[@frame_start_index + 2]
+    end
+
+    def throws
+      2
     end
   end
 
@@ -55,26 +96,18 @@ class Bowling
     currentthrow = 0
     totalscore = 0
     while frame <= 10 do
-      if Strike.match?(throws[currentthrow])
-        frame_score = Strike.base_score
-        frame_bonus_score = Strike.get_bonus_score(throws, currentthrow)
-        currentthrow += Strike.throws
-      elsif spare?(currentthrow, currentthrow + 1)
-        frame_score = throws[currentthrow] + throws[currentthrow+1]
-        frame_bonus_score = throws[currentthrow+2]
-        currentthrow += 2 # advance to next frame
-      else
-        frame_score = throws[currentthrow] + throws[currentthrow+1]
-        frame_bonus_score = 0
-        currentthrow += 2 # advance to next frame
-      end
-      totalscore += frame_score + frame_bonus_score
+      frame_type = if Strike.match?(throws, currentthrow)
+                      Strike.new(throws: throws, frame_start_index: currentthrow)
+                    elsif Spare.match?(throws, currentthrow)
+                      Spare.new(throws: throws, frame_start_index: currentthrow)
+                    else
+                      DefaultThrow.new(throws: throws, frame_start_index: currentthrow)
+                    end
+
+      totalscore += frame_type.base_score + frame_type.get_bonus_score
+      currentthrow += frame_type.throws
       frame += 1
     end
     return totalscore
-  end
-
-  def spare?(throw_index, throw2_index)
-    throws[throw_index] + throws[throw2_index] == 10
   end
 end
