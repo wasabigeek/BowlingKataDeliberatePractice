@@ -9,6 +9,29 @@ class Bowling
     @throws.push(pins)
   end
 
+  # come back to this after refactoring
+  def display
+    output = []
+    current_frame = []
+    @throws.each_with_index do |pins, current_throw|
+      if strike?(current_throw)
+        current_frame << pins
+        next if output.size == 9 && current_frame.size < 3 # final frame display
+
+        output << current_frame
+        current_frame = []
+      else
+        current_frame << pins
+        if current_frame.size == 2
+          output << current_frame
+          current_frame = []
+        end
+      end
+    end
+
+    output
+  end
+
   def score
     frame = 1
     currentthrow = 0

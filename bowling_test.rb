@@ -43,3 +43,32 @@ class BowlingTest < Minitest::Test
     assert_equal 90, newgame.score
   end
 end
+
+class BowlingPrintTest < Minitest::Test
+  def test_game_with_open_frames_only
+    newgame = Bowling.new
+    20.times { newgame.throw 2 }
+
+    expected = []
+    10.times { expected << [2, 2] }
+
+    assert_equal(
+      expected,
+      newgame.display
+    )
+  end
+
+  def test_game_with_all_strikes
+    newgame = Bowling.new
+    12.times{newgame.throw 10}
+
+    expected = []
+    9.times { expected << [10] }
+    expected << [10, 10, 10]
+
+    assert_equal(
+      expected,
+      newgame.display
+    )
+  end
+end
