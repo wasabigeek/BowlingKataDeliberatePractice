@@ -1,5 +1,5 @@
 class Bowling
-  class DefaultThrow
+  class DefaultFrame
     def initialize(throws:, frame_start_index:)
       @throws = throws
       @frame_start_index = frame_start_index
@@ -9,52 +9,54 @@ class Bowling
       throws[current_index] + throws[current_index + 1] < 10
     end
 
+    def score
+      base_score + bonus_score
+    end
+
+    def next_frame_index
+      @frame_start_index + 2
+    end
+
+    private
+
     def base_score
       @throws[@frame_start_index] + @throws[@frame_start_index + 1]
     end
 
-    def get_bonus_score
+    def bonus_score
       0
-    end
-
-    def throws
-      2
     end
   end
 
-  class Strike < DefaultThrow
+  class StrikeFrame < DefaultFrame
     def self.match?(throws, current_index)
       throws[current_index] == 10
     end
 
+    def next_frame_index
+      @frame_start_index + 1
+    end
+
+    private
+
     def base_score
       10
     end
 
-    def get_bonus_score
+    def bonus_score
       @throws[@frame_start_index + 1] + @throws[@frame_start_index + 2]
-    end
-
-    def throws
-      1
     end
   end
 
-  class Spare < DefaultThrow
+  class SpareFrame < DefaultFrame
     def self.match?(throws, current_index)
       throws[current_index] + throws[current_index + 1] == 10
     end
 
-    def base_score
-      10
-    end
+    private
 
-    def get_bonus_score
+    def bonus_score
       @throws[@frame_start_index + 2]
-    end
-
-    def throws
-      2
     end
   end
 
@@ -92,22 +94,27 @@ class Bowling
   # end
 
   def score
-    frame = 1
+    frames = []
+    frame_count = 1
     currentthrow = 0
-    totalscore = 0
-    while frame <= 10 do
-      frame_type = if Strike.match?(throws, currentthrow)
-                      Strike.new(throws: throws, frame_start_index: currentthrow)
-                    elsif Spare.match?(throws, currentthrow)
-                      Spare.new(throws: throws, frame_start_index: currentthrow)
+    while frame_count <= 10 do
+      # a big assumption here is we are looking back on a finished game,
+      # and that we know the start index of each frame based on the previous frame.
+      # also, this probably isn't very helpful given that bowling's rules are pretty fixed
+      frame_type = if StrikeFrame.match?(throws, currentthrow)
+                      StrikeFrame
+                    elsif SpareFrame.match?(throws, currentthrow)
+                      SpareFrame
                     else
-                      DefaultThrow.new(throws: throws, frame_start_index: currentthrow)
+                      DefaultFrame
                     end
 
-      totalscore += frame_type.base_score + frame_type.get_bonus_score
-      currentthrow += frame_type.throws
-      frame += 1
+      current_frame = frame_type.new(throws: throws, frame_start_index: currentthrow)
+      currentthrow = current_frame.next_frame_index
+      frames << current_frame
+      frame_count += 1
     end
-    return totalscore
+
+    frames.sum(&:score)
   end
 end
