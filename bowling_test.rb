@@ -33,4 +33,13 @@ class BowlingTest < Minitest::Test
 
     assert_equal 150, newgame.score
   end
+
+  def test_bonus_roll
+    newgame = Bowling.new
+    10.times do
+     newgame.throw 9
+     newgame.throw  0
+    end
+    assert_equal 90, newgame.score
+  end
 end
